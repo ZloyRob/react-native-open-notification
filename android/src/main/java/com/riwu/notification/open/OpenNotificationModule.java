@@ -63,6 +63,53 @@ public class OpenNotificationModule extends ReactContextBaseJavaModule {
         getReactApplicationContext().startActivityForResult(intent, REQUEST_CODE, null);
     }
 
+    @ReactMethod
+    public void openChannelSettings(String channelId) {
+        ReactContext reactContext = getReactApplicationContext();
+        String packageName = reactContext.getPackageName();
+        Intent intent = new Intent();
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+          && android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            intent.setAction("android.settings.CHANNEL_NOTIFICATION_SETTINGS");
+            intent.putExtra("android.provider.extra.APP_PACKAGE", packageName);
+            intent.putExtra("app_package", packageName);
+            intent.putExtra("app_uid", reactContext.getApplicationInfo().uid);
+            intent.putExtra("android.provider.extra.CHANNEL_ID", channelId);
+        } else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+            intent.putExtra("android.provider.extra.APP_PACKAGE", packageName);
+            intent.putExtra("app_package", packageName);
+            intent.putExtra("app_uid", reactContext.getApplicationInfo().uid);
+        } else {
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            intent.setData(Uri.parse("package:" + packageName));
+        }
+
+        getReactApplicationContext().startActivityForResult(intent, REQUEST_CODE, null);
+    }
+
+    @ReactMethod
+    public void openNotificationSettings() {
+        ReactContext reactContext = getReactApplicationContext();
+        String packageName = reactContext.getPackageName();
+        Intent intent = new Intent();
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+            intent.putExtra("android.provider.extra.APP_PACKAGE", packageName);
+            intent.putExtra("app_package", packageName);
+            intent.putExtra("app_uid", reactContext.getApplicationInfo().uid);
+        } else {
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            intent.setData(Uri.parse("package:" + packageName));
+        }
+
+        getReactApplicationContext().startActivityForResult(intent, REQUEST_CODE, null);
+    }
+
     private NotificationManager getNotificationManager() {
         return (NotificationManager) getReactApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
     }
